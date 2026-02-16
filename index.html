@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用商店 - 今日头条</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+        
+        /* 导航栏 */
+        nav {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 0.5rem 1rem;
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0071e3;
+        }
+        
+        nav .search-bar {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 2rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            background-color: rgba(245, 245, 247, 0.8);
+            font-size: 0.9rem;
+            color: #86868b;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        
+        nav .search-bar:focus {
+            background-color: white;
+            border-color: #0071e3;
+            color: #1d1d1f;
+        }
+        
+        nav .search-bar::placeholder {
+            color: #86868b;
+        }
+        
+        nav .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+        
+        nav .nav-item {
+            margin-left: 1.5rem;
+            color: #0071e3;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        
+        nav .nav-item:hover {
+            color: #0046a4;
+        }
+        
+        nav .nav-item.primary {
+            background-color: #0071e3;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: background-color 0.2s ease;
+        }
+        
+        nav .nav-item.primary:hover {
+            background-color: #0046a4;
+        }
+        
+        /* 主内容 */
+        .main-container {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 0 1rem;
+        }
+        
+        /* 分类导航 */
+        .category-nav {
+            display: flex;
+            overflow-x: auto;
+            padding: 1rem 0;
+            margin-bottom: 1rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-item {
+            margin-right: 1.5rem;
+            padding: 0.5rem 0;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            color: #86868b;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+        
+        .category-item:hover {
+            color: #0071e3;
+        }
+        
+        .category-item.active {
+            color: #0071e3;
+            font-weight: 500;
+        }
+        
+        .category-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #0071e3;
+            border-radius: 2px;
+        }
+        
+        /* 内容区域 */
+        .content-area {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .content-area.active {
+            display: block;
+        }
+        
+        /* 横幅 */
+        .banner {
+            background: linear-gradient(135deg, #0071e3, #5ac8fa);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        /* 区块 */
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        
+        .section-link {
+            color: #0071e3;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .section-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* 应用网格 */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+        }
+        
+        .app-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin-bottom: 0.5rem;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .app-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+        
+        .app-category {
+            font-size: 0.75rem;
+            color: #86868b;
+        }
+        
+        /* 游戏网格 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .game-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .game-image {
+            width: 100%;
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .game-info {
+            padding: 1rem;
+        }
+        
+        .game-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .game-genre {
+            font-size: 0.85rem;
+            color: #86868b;
+        }
+        
+        /* 新闻网格 */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .news-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .news-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .news-info {
+            padding: 1rem;
+        }
+        
+        .news-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        
+        .news-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #86868b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .news-preview {
+            font-size: 0.9rem;
+            color: #424245;
+            line-height: 1.5;
+        }
+        
+        /* 特色卡片 */
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-description {
+            color: #424245;
+            line-height: 1.5;
+        }
+        
+        /* 页脚 */
+        footer {
+            background-color: #f5f5f7;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 2rem 1rem;
+            margin-top: 2rem;
+        }
+        
+        footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            color: #86868b;
+            font-size: 0.85rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            nav .search-bar {
+                display: none;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="container">
+            <div class="logo">App Store</div>
+            <input type="text" class="search-bar" placeholder="搜索应用、游戏或新闻">
+            <div class="nav-actions">
+                <a href="#" class="nav-item">登录</a>
+                <a href="#" class="nav-item primary">获取</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <div class="main-container">
+        <!-- 分类导航 -->
+        <div class="category-nav">
+            <div class="category-item active" data-category="toutiao">今日头条</div>
+            <div class="category-item" data-category="games">游戏</div>
+            <div class="category-item" data-category="apps">应用</div>
+            <div class="category-item" data-category="explore">前沿公告</div>
+        </div>
+
+        <!-- 今日头条内容区域 -->
+        <div class="content-area active" id="toutiao">
+            <!-- 横幅 -->
+            <div class="banner">
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">今日头条 - 热门新闻</h2>
+                <p style="color: #666; line-height: 1.6;">获取最新资讯，掌握全球动态</p>
+            </div>
+
+            <!-- 今日热点新闻 -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">今日热点新闻</h3>
+                    <a href="#" class="section-link">查看全部 <i class="fas fa-chevron-right"></i></a>
+                </div>
+                <div class="news-grid">
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">我国在量子计算领域取得重大突破，新型量子处理器性能提升10倍</div>
+                            <div class="news-meta">
+                                <span>科技日报</span>
+                                <span>2小时前</span>
+                                <span>10.2万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                记者从中国科学院量子信息与量子科技创新研究院获悉，我国科研团队在量子计算领域取得重大突破，成功研发出新型量子处理器。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">电影《流浪地球2》票房突破40亿元，创春节档新纪录</div>
+                            <div class="news-meta">
+                                <span>娱乐周刊</span>
+                                <span>6小时前</span>
+                                <span>8.3万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                国产科幻电影《流浪地球2》自上映以来票房持续攀升，截至昨日已突破40亿元大关，成为春节档票房冠军。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">北京冬奥会成功举办一周年，冰雪经济持续升温</div>
+                            <div class="news-meta">
+                                <span>体育日报</span>
+                                <span>8小时前</span>
+                                <span>4.2万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                北京冬奥会成功举办一周年之际，我国冰雪经济呈现持续升温态势。据统计，全国冰雪运动参与人数已超过3亿。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1539628929184-672d33003a3f?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">央行宣布降准0.5个百分点，释放长期资金约1.2万亿元</div>
+                            <div class="news-meta">
+                                <span>经济日报</span>
+                                <span>10小时前</span>
+                                <span>9.6万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                为支持实体经济发展，促进综合融资成本稳中有降，中国人民银行决定下调金融机构存款准备金率0.5个百分点。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">教育部推出新政策，加强中小学生心理健康教育</div>
+                            <div class="news-meta">
+                                <span>中国教育报</span>
+                                <span>12小时前</span>
+                                <span>6.7万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                教育部近日印发《关于进一步加强中小学生心理健康教育的指导意见》，要求各地学校建立健全心理健康教育体系。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="news-card">
+                        <div class="news-image" style="background-image: url('https://images.unsplash.com/photo-1584622268286-3a0e8310b7a0?w=400&h=200&fit=crop')"></div>
+                        <div class="news-info">
+                            <div class="news-title">我国新能源汽车产销量连续8年位居世界第一</div>
+                            <div class="news-meta">
+                                <span>汽车之家</span>
+                                <span>1天前</span>
+                                <span>7.4万阅读</span>
+                            </div>
+                            <div class="news-preview">
+                                据中国汽车工业协会统计，2022年我国新能源汽车产销量分别达到705.8万辆和688.7万辆，同比增长96.9%和93.4%。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 游戏内容区域 -->
+        <div class="content-area" id="games">
+            <!-- 横幅 -->
+            <div class="banner">
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">精彩游戏</h2>
+                <p style="color: #666; line-height: 1.6;">探索最新最热门的游戏作品</p>
+            </div>
+
+            <!-- 热门游戏 -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">热门游戏</h3>
+                    <a href="#" class="section-link">查看全部 <i class="fas fa-chevron-right"></i></a>
+                </div>
+                <div class="game-grid">
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/FF4500/FFFFFF?text=Game+1')"></div>
+                        <div class="game-info">
+                            <div class="game-name">原神</div>
+                            <div class="game-genre">开放世界冒险</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/4169E1/FFFFFF?text=Game+2')"></div>
+                        <div class="game-info">
+                            <div class="game-name">王者荣耀</div>
+                            <div class="game-genre">MOBA</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/32CD32/FFFFFF?text=Game+3')"></div>
+                        <div class="game-info">
+                            <div class="game-name">和平精英</div>
+                            <div class="game-genre">射击</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/9370DB/FFFFFF?text=Game+4')"></div>
+                        <div class="game-info">
+                            <div class="game-name">我的世界</div>
+                            <div class="game-genre">沙盒建造</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/FFD700/FFFFFF?text=Game+5')"></div>
+                        <div class="game-info">
+                            <div class="game-name">崩坏：星穹铁道</div>
+                            <div class="game-genre">回合制RPG</div>
+                        </div>
+                    </div>
+                    <div class="game-card">
+                        <div class="game-image" style="background-image: url('https://via.placeholder.com/250x150/FF69B4/FFFFFF?text=Game+6')"></div>
+                        <div class="game-info">
+                            <div class="game-name">光·遇</div>
+                            <div class="game-genre">社交冒险</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 应用内容区域 -->
+        <div class="content-area" id="apps">
+            <!-- 横幅 -->
+            <div class="banner">
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">实用应用</h2>
+                <p style="color: #666; line-height: 1.6;">提升生活和工作效率的必备应用</p>
+            </div>
+
+            <!-- 热门应用 -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">热门应用</h3>
+                    <a href="#" class="section-link">查看全部 <i class="fas fa-chevron-right"></i></a>
+                </div>
+                <div class="app-grid">
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/FF9500/FFFFFF?text=WeChat')"></div>
+                        <div class="app-name">微信</div>
+                        <div class="app-category">社交</div>
+                    </div>
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/007AFF/FFFFFF?text=Alipay')"></div>
+                        <div class="app-name">支付宝</div>
+                        <div class="app-category">财务</div>
+                    </div>
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/5AC8FA/FFFFFF?text=Taobao')"></div>
+                        <div class="app-name">淘宝</div>
+                        <div class="app-category">购物</div>
+                    </div>
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/FF2D55/FFFFFF?text=Douyin')"></div>
+                        <div class="app-name">抖音</div>
+                        <div class="app-category">娱乐</div>
+                    </div>
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/5856D6/FFFFFF?text=QQ')"></div>
+                        <div class="app-name">QQ</div>
+                        <div class="app-category">社交</div>
+                    </div>
+                    <div class="app-card">
+                        <div class="app-icon" style="background-image: url('https://via.placeholder.com/80x80/FF3B30/FFFFFF?text=JD')"></div>
+                        <div class="app-name">京东</div>
+                        <div class="app-category">购物</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 前沿公告内容区域 -->
+        <div class="content-area" id="explore">
+            <!-- 横幅 -->
+            <div class="banner">
+                <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; line-height: 1.3;">前沿公告</h2>
+                <p style="color: #666; line-height: 1.6;">了解最新的前沿资讯和公告</p>
+            </div>
+
+            <!-- 前沿公告内容 -->
+            <section class="section">
+                <div class="section-header">
+                    <h3 class="section-title">最新公告</h3>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">平台更新通知</div>
+                    <div class="feature-description">我们将在本周进行系统维护升级，预计维护时间为凌晨2点至4点。期间可能会出现短暂的服务中断，敬请谅解。</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">新功能预告</div>
+                    <div class="feature-description">即将推出全新的个性化推荐系统，将根据您的兴趣爱好提供更加精准的内容推荐，敬请期待。</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-title">安全提示</div>
+                    <div class="feature-description">为了保障您的账号安全，请定期更换密码，并避免使用相同密码登录多个平台。如有异常登录情况，请及时联系客服。</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 App Store. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 分类导航切换功能
+        const categoryItems = document.querySelectorAll('.category-item');
+        const contentAreas = document.querySelectorAll('.content-area');
+        
+        categoryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // 移除所有分类的活跃状态
+                categoryItems.forEach(i => i.classList.remove('active'));
+                // 添加当前分类的活跃状态
+                item.classList.add('active');
+                
+                // 隐藏所有内容区域
+                contentAreas.forEach(area => area.classList.remove('active'));
+                // 显示对应分类的内容区域
+                const category = item.getAttribute('data-category');
+                const targetArea = document.getElementById(category);
+                if (targetArea) {
+                    targetArea.classList.add('active');
+                }
+            });
+        });
+        
+        // 搜索功能
+        const searchBar = document.querySelector('.search-bar');
+        
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            console.log('搜索:', searchTerm);
+            // 这里可以添加实际的搜索逻辑
+        });
+        
+        // 新闻卡片点击事件
+        const newsCards = document.querySelectorAll('.news-card');
+        
+        newsCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const newsTitle = card.querySelector('.news-title').textContent;
+                console.log('点击新闻:', newsTitle);
+                // 这里可以添加新闻详情页的跳转逻辑
+            });
+        });
+        
+        // 应用卡片点击事件
+        const appCards = document.querySelectorAll('.app-card');
+        
+        appCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const appName = card.querySelector('.app-name').textContent;
+                console.log('点击应用:', appName);
+                // 这里可以添加应用详情页的跳转逻辑
+            });
+        });
+        
+        // 游戏卡片点击事件
+        const gameCards = document.querySelectorAll('.game-card');
+        
+        gameCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const gameName = card.querySelector('.game-name').textContent;
+                console.log('点击游戏:', gameName);
+                // 这里可以添加游戏详情页的跳转逻辑
+            });
+        });
+        
+        // 特色卡片点击事件
+        const featureCards = document.querySelectorAll('.feature-card');
+        
+        featureCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const featureTitle = card.querySelector('.feature-title').textContent;
+                console.log('点击特色:', featureTitle);
+                // 这里可以添加特色详情页的跳转逻辑
+            });
+        });
+    </script>
+</body>
+</html>
