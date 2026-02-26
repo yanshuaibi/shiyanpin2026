@@ -1,0 +1,3685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --accent-color: #0071e3;
+            --border-color: #e0e0e0;
+            --header-bg: #1d1d1f;
+            --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #f5f5f7;
+            --text-secondary: #a1a1a6;
+            --accent-color: #0a84ff;
+            --border-color: #2c2c2c;
+            --header-bg: #121212;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background-color 0.3s ease;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #0071e3;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            color: white;
+            margin-left: 0.5rem;
+            outline: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Section Styles */
+        section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: block;
+        }
+
+        .tab-content.hidden {
+            display: none;
+        }
+
+        /* Comprehensive Apps */
+        #comprehensive-apps {
+            background-color: white;
+        }
+
+        .subsection-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .featured-apps-section {
+            margin-bottom: 2rem;
+        }
+
+        .regular-apps-section {
+            margin-top: 2rem;
+        }
+
+        /* App Carousel */
+        .app-carousel {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            scrollbar-width: thin;
+            scrollbar-color: #0071e3 #f0f0f0;
+            margin: 0 -1rem;
+            padding: 1rem;
+        }
+
+        .app-carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .app-carousel::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .app-carousel::-webkit-scrollbar-thumb {
+            background-color: #0071e3;
+            border-radius: 10px;
+        }
+
+        .app-carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .app-carousel-wrapper {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* App Card Styles - WeChat Style */
+        .app-card {
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0, 113, 227, 0.05) 100%);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0071e3, #00c6ff);
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            background-color: #f0f0f0;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .app-card:hover .app-image {
+            transform: scale(1.1);
+        }
+
+        .app-info {
+            width: 100%;
+        }
+
+        .app-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .app-category {
+            font-size: 0.85rem;
+            color: #86868b;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .app-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .star {
+            color: #ffcc00;
+            font-size: 0.9rem;
+            margin-right: 0.1rem;
+        }
+
+        .rating-value {
+            margin-left: 0.3rem;
+            font-size: 0.9rem;
+            color: #86868b;
+            font-weight: 500;
+        }
+
+        .app-downloads {
+            font-size: 0.8rem;
+            color: #86868b;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #ff9500, #ff5e3a);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* Apps Grid */
+        .apps-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .comprehensive-app-card {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0, 113, 227, 0.03) 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comprehensive-app-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #0071e3, #00c6ff);
+        }
+
+        .comprehensive-app-card:hover {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(0, 113, 227, 0.08) 100%);
+            transform: translateX(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .app-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            background-color: #f0f0f0;
+            margin-right: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .comprehensive-app-card:hover .app-icon {
+            transform: scale(1.1);
+        }
+
+        .app-details {
+            flex: 1;
+        }
+
+        .app-rank {
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #ff9500, #ff5e3a);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* News Carousel */
+        .news-carousel {
+            position: relative;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-container {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .carousel-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
+
+        .carousel-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 2rem;
+        }
+
+        .carousel-caption h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .carousel-caption p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            z-index: 10;
+        }
+
+        .carousel-btn:hover {
+            background-color: white;
+        }
+
+        .carousel-btn.prev {
+            left: 1rem;
+        }
+
+        .carousel-btn.next {
+            right: 1rem;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .indicator.active {
+            background-color: white;
+        }
+
+        /* Today's Headlines */
+        #today-headlines {
+            background-color: white;
+            color: #1d1d1f;
+        }
+
+        #today-headlines .headline-title {
+            color: #1d1d1f;
+        }
+
+        .headlines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .headline-card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .headline-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .headline-image {
+            width: 100%;
+            height: 180px;
+            background-color: #f0f0f0;
+            object-fit: cover;
+        }
+
+        .headline-content {
+            padding: 1rem;
+        }
+
+        .headline-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            color: #1d1d1f;
+        }
+
+        .headline-source {
+            font-size: 0.85rem;
+            color: #86868b;
+            margin-bottom: 0.5rem;
+        }
+
+        .headline-time {
+            font-size: 0.85rem;
+            color: #86868b;
+        }
+
+        /* Frontier Information */
+        #frontier {
+            background-color: white;
+        }
+
+        .frontier-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .frontier-card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .frontier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-color), #00c6ff);
+        }
+
+        .frontier-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .frontier-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #e3f2fd;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .frontier-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+        }
+
+        .frontier-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .frontier-link {
+            color: #0071e3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .frontier-link:hover {
+            color: #0064cc;
+            text-decoration: underline;
+        }
+
+        /* Update Modal Styles */
+        #modalUpdateContent {
+            margin: 1rem 0;
+        }
+
+        #modalUpdateContent .update-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        #modalUpdateContent .update-item:last-child {
+            border-bottom: none;
+        }
+
+        .update-date {
+            font-size: 0.85rem;
+            color: #86868b;
+            margin-bottom: 0.25rem;
+        }
+
+        .update-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 0.25rem;
+        }
+
+        .update-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Lazy Loading Styles */
+        .lazy {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background-color: var(--border-color);
+        }
+
+        .lazy.loaded {
+            opacity: 1;
+        }
+
+        /* 3D效果 */
+        .app-card, .headline-card, .frontier-card {
+            transform-style: preserve-3d;
+        }
+
+        .app-card:hover, .headline-card:hover, .frontier-card:hover {
+            transform: translateY(-4px) scale(1.02) rotateX(5deg);
+        }
+
+        /* 渐变背景 */
+        body {
+            background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(0, 113, 227, 0.05) 100%);
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Bright Lizard Loader Effect */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 0;
+            background-color: #000000;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .loader-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            font-family: "Inter", sans-serif;
+            font-size: 1.2em;
+            font-weight: 300;
+            color: white;
+            border-radius: 50%;
+            background-color: transparent;
+            user-select: none;
+        }
+
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background-color: transparent;
+            animation: loader-rotate 2s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes loader-rotate {
+            0% {
+                transform: rotate(90deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 30px 0 #ad5fff inset,
+                    0 60px 60px 0 #471eec inset;
+            }
+            50% {
+                transform: rotate(270deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 10px 0 #d60a47 inset,
+                    0 40px 60px 0 #311e80 inset;
+            }
+            100% {
+                transform: rotate(450deg);
+                box-shadow:
+                    0 10px 20px 0 #fff inset,
+                    0 20px 30px 0 #ad5fff inset,
+                    0 60px 60px 0 #471eec inset;
+            }
+        }
+
+        .loader-letter {
+            display: inline-block;
+            opacity: 0.4;
+            transform: translateY(0);
+            animation: loader-letter-anim 2s infinite;
+            z-index: 1;
+            border-radius: 50ch;
+            border: none;
+        }
+
+        .loader-letter:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .loader-letter:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .loader-letter:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        .loader-letter:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes loader-letter-anim {
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+            40% {
+                opacity: 0.7;
+                transform: translateY(0);
+            }
+        }
+
+        /* Version History Styles */
+        .version-history {
+            margin: 1rem 0;
+        }
+
+        .version-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .version-item:last-child {
+            border-bottom: none;
+        }
+
+        .version-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding-left: 0.5rem;
+        }
+
+        .version-number {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .version-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .version-changes {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .version-changes ul {
+            margin-top: 0.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .version-changes li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Comments Styles */
+        .app-comments {
+            margin: 1rem 0;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .comment-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            padding-left: 0.5rem;
+        }
+
+        .comment-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-user {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comment-rating {
+            color: #ffcc00;
+            font-size: 0.9rem;
+        }
+
+        .comment-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .comment-date {
+            color: var(--text-secondary);
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .comment-like, .comment-reply {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.3s ease;
+        }
+
+        .comment-like:hover, .comment-reply:hover {
+            color: var(--accent-color);
+        }
+
+        .comment-input-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .comment-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 0.75rem;
+        }
+
+        .comment-submit {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .comment-submit:hover {
+            background-color: #0064cc;
+        }
+
+        /* News Modal */
+        .news-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .news-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .news-modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            position: relative;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: white;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+        }
+
+        .modal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            color: #86868b;
+            font-size: 0.9rem;
+        }
+
+        .modal-content-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .modal-content-text p {
+            margin-bottom: 1rem;
+        }
+
+        .modal-footer {
+            padding: 0 2rem 2rem;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-btn.primary {
+            background-color: #0071e3;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background-color: #0064cc;
+        }
+
+        .modal-btn.secondary {
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .modal-btn.secondary:hover {
+            background-color: #e8e8ed;
+        }
+
+        /* App Details Modal */
+        .app-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .app-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .app-modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: 16px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .app-modal.active .app-modal-content {
+            transform: scale(1);
+        }
+
+        .app-modal-header {
+            position: relative;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .app-modal-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 24px;
+            background-color: #f0f0f0;
+            object-fit: cover;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-modal-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+        }
+
+        .app-modal-category {
+            font-size: 1rem;
+            color: #86868b;
+            margin-bottom: 1rem;
+        }
+
+        .app-modal-rating {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .app-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .app-modal-close:hover {
+            background-color: #e8e8ed;
+        }
+
+        .app-modal-body {
+            padding: 2rem;
+        }
+
+        .app-modal-section {
+            margin-bottom: 2rem;
+        }
+
+        .app-modal-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+        }
+
+        .app-modal-description {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .app-modal-screenshots {
+            display: flex;
+            gap: 0.75rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+
+        .app-modal-screenshot {
+            width: 120px;
+            height: 213px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .app-modal-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .app-modal-info-item {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .app-modal-info-label {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .app-modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .app-modal-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .app-modal-btn:hover {
+            background-color: #0064cc;
+        }
+
+        .app-modal-btn.installing {
+            background-color: #34c759;
+            cursor: not-allowed;
+        }
+
+        .app-modal-btn.open {
+            background-color: #34c759;
+        }
+
+        /* Disable main content when modal is active */
+        .modal-active .main-content {
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--header-bg);
+            color: white;
+            padding: 2rem 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding: 0 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            nav ul {
+                justify-content: center;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+
+            .carousel-image {
+                height: 250px;
+            }
+
+            .carousel-caption h3 {
+                font-size: 1.2rem;
+            }
+
+            .headlines-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .frontier-content {
+                grid-template-columns: 1fr;
+            }
+
+            .app-card {
+                min-width: 100px;
+            }
+
+            .apps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comprehensive-app-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .app-icon {
+                margin-right: 0;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-image {
+                height: 200px;
+            }
+
+            .modal-title {
+                font-size: 1.4rem;
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+            }
+
+            .app-modal-content {
+                max-width: 95%;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">App Store</div>
+            <nav>
+                <ul>
+                    <li><a href="#today-headlines">今日头条</a></li>
+                    <li><a href="#comprehensive-apps">综合应用</a></li>
+                    <li><a href="#frontier">前沿信息</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div class="search-bar">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M7.333 12.667A5.333 5.333 0 1 0 7.333 2a5.333 5.333 0 0 0 0 10.667zM14 14l-2.9-2.9" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="搜索应用">
+                </div>
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Comprehensive Apps Section -->
+        <section id="comprehensive-apps" class="tab-content">
+            <h2 class="section-title">综合应用</h2>
+            
+            <!-- Featured Apps -->
+            <div class="featured-apps-section">
+                <h3 class="subsection-title">热门游戏 (用户投票前20)</h3>
+                <p style="color: #86868b; margin-bottom: 1rem; font-size: 0.9rem;">基于用户投票和下载量综合排名，展示最受欢迎的前20款游戏</p>
+                <div class="app-carousel-container">
+                    <div class="app-carousel-wrapper">
+                        <div class="app-carousel">
+                            <div class="app-card" data-id="1">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/0071e3/ffffff?text=🎮" alt="超级游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">超级游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.9</span>
+                                    </div>
+                                    <p class="app-downloads">1000万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="2">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/34aadc/ffffff?text=🎯" alt="射击游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">射击游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.2</span>
+                                    </div>
+                                    <p class="app-downloads">500万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="3">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/ff9500/ffffff?text=🏎️" alt="赛车游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">赛车游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">800万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="4">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/5856d6/ffffff?text=🧩" alt=" puzzle游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">益智游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.3</span>
+                                    </div>
+                                    <p class="app-downloads">600万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="5">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/4cd964/ffffff?text=🎭" alt="角色扮演" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">角色扮演</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">700万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="6">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/ff2d55/ffffff?text=🎯" alt="策略游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">策略游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.4</span>
+                                    </div>
+                                    <p class="app-downloads">400万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="13">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/9c27b0/ffffff?text=👑" alt="模拟游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">模拟游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">900万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="14">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/4caf50/ffffff?text=⚔️" alt="动作游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">动作游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">850万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="15">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/ff5722/ffffff?text=🎪" alt="休闲游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">休闲游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.3</span>
+                                    </div>
+                                    <p class="app-downloads">750万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="16">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/2196f3/ffffff?text=🏆" alt="体育游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">体育游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.5</span>
+                                    </div>
+                                    <p class="app-downloads">650万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="17">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/ffeb3b/ffffff?text=🐉" alt="奇幻游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">奇幻游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">700万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="18">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/795548/ffffff?text=🎯" alt="射击游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">第一人称射击</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.4</span>
+                                    </div>
+                                    <p class="app-downloads">550万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="19">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/00bcd4/ffffff?text=🚀" alt="太空游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">太空游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">600万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="20">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/ff9800/ffffff?text=🏰" alt="冒险游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">冒险游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">650万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="21">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/673ab7/ffffff?text=🎵" alt="音乐游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">音乐游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.3</span>
+                                    </div>
+                                    <p class="app-downloads">500万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="22">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/e91e63/ffffff?text=👾" alt="街机游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">街机游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.5</span>
+                                    </div>
+                                    <p class="app-downloads">550万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="23">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/3f51b5/ffffff?text=🎯" alt="战术游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">战术游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">450万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="24">
+                                <div class="app-badge">新</div>
+                                <img data-src="https://via.placeholder.com/100x100/009688/ffffff?text=🌍" alt="开放世界" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">开放世界</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">750万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="25">
+                                <div class="app-badge">热门</div>
+                                <img data-src="https://via.placeholder.com/100x100/7986cb/ffffff?text=🎮" alt="多人游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">多人游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.4</span>
+                                    </div>
+                                    <p class="app-downloads">600万+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="26">
+                                <div class="app-badge">精选</div>
+                                <img data-src="https://via.placeholder.com/100x100/ffc107/ffffff?text=🏆" alt="竞技游戏" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">竞技游戏</h3>
+                                    <p class="app-category">游戏</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">650万+ 下载</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Regular Apps -->
+            <div class="regular-apps-section">
+                <h3 class="subsection-title">全部应用 (用户投票前20)</h3>
+                <p style="color: #86868b; margin-bottom: 1rem; font-size: 0.9rem;">基于用户投票综合排名，展示最受欢迎的前20款应用</p>
+                <div class="app-carousel-container">
+                    <div class="app-carousel-wrapper">
+                        <div class="app-carousel">
+                            <div class="app-card" data-id="7">
+                                <div class="app-badge">TOP 1</div>
+                                <img data-src="https://via.placeholder.com/100x100/07C160/ffffff?text=💬" alt="微信" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">微信</h3>
+                                    <p class="app-category">社交</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.9</span>
+                                    </div>
+                                    <p class="app-downloads">10亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="8">
+                                <div class="app-badge">TOP 2</div>
+                                <img data-src="https://via.placeholder.com/100x100/12B7F5/ffffff?text=🐧" alt="QQ" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">QQ</h3>
+                                    <p class="app-category">社交</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">8亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="9">
+                                <div class="app-badge">TOP 3</div>
+                                <img data-src="https://via.placeholder.com/100x100/FE2C55/ffffff?text=🎵" alt="抖音" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">抖音</h3>
+                                    <p class="app-category">视频</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">9亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="10">
+                                <div class="app-badge">TOP 4</div>
+                                <img data-src="https://via.placeholder.com/100x100/1677FF/ffffff?text=💰" alt="支付宝" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">支付宝</h3>
+                                    <p class="app-category">金融</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">7亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="11">
+                                <div class="app-badge">TOP 5</div>
+                                <img data-src="https://via.placeholder.com/100x100/FF6700/ffffff?text=🛒" alt="淘宝" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">淘宝</h3>
+                                    <p class="app-category">购物</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.5</span>
+                                    </div>
+                                    <p class="app-downloads">6亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="12">
+                                <div class="app-badge">TOP 6</div>
+                                <img data-src="https://via.placeholder.com/100x100/FFB000/ffffff?text=🍔" alt="美团" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">美团</h3>
+                                    <p class="app-category">生活</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">5亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="27">
+                                <div class="app-badge">TOP 7</div>
+                                <img data-src="https://via.placeholder.com/100x100/34A853/ffffff?text=📱" alt="拼多多" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">拼多多</h3>
+                                    <p class="app-category">购物</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.4</span>
+                                    </div>
+                                    <p class="app-downloads">5亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="28">
+                                <div class="app-badge">TOP 8</div>
+                                <img data-src="https://via.placeholder.com/100x100/EA4335/ffffff?text=📧" alt=" Gmail" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">Gmail</h3>
+                                    <p class="app-category">邮件</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">4亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="29">
+                                <div class="app-badge">TOP 9</div>
+                                <img data-src="https://via.placeholder.com/100x100/FBBC05/ffffff?text=🎵" alt="Spotify" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">Spotify</h3>
+                                    <p class="app-category">音乐</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">3亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="30">
+                                <div class="app-badge">TOP 10</div>
+                                <img data-src="https://via.placeholder.com/100x100/007AFF/ffffff?text=📱" alt="Safari" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">Safari</h3>
+                                    <p class="app-category">浏览器</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">2亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="31">
+                                <div class="app-badge">TOP 11</div>
+                                <img data-src="https://via.placeholder.com/100x100/5856D6/ffffff?text=🎬" alt="爱奇艺" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">爱奇艺</h3>
+                                    <p class="app-category">视频</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.3</span>
+                                    </div>
+                                    <p class="app-downloads">2亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="32">
+                                <div class="app-badge">TOP 12</div>
+                                <img data-src="https://via.placeholder.com/100x100/FF2D55/ffffff?text=📺" alt="优酷" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">优酷</h3>
+                                    <p class="app-category">视频</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.2</span>
+                                    </div>
+                                    <p class="app-downloads">2亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="33">
+                                <div class="app-badge">TOP 13</div>
+                                <img data-src="https://via.placeholder.com/100x100/4CD964/ffffff?text=🏃" alt="Keep" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">Keep</h3>
+                                    <p class="app-category">健康</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="34">
+                                <div class="app-badge">TOP 14</div>
+                                <img data-src="https://via.placeholder.com/100x100/FF9500/ffffff?text=📷" alt="相机" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">相机</h3>
+                                    <p class="app-category">工具</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.7</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="35">
+                                <div class="app-badge">TOP 15</div>
+                                <img data-src="https://via.placeholder.com/100x100/007AFF/ffffff?text=📱" alt="设置" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">设置</h3>
+                                    <p class="app-category">工具</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.8</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="36">
+                                <div class="app-badge">TOP 16</div>
+                                <img data-src="https://via.placeholder.com/100x100/8E8E93/ffffff?text=📝" alt="备忘录" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">备忘录</h3>
+                                    <p class="app-category">工具</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.4</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="37">
+                                <div class="app-badge">TOP 17</div>
+                                <img data-src="https://via.placeholder.com/100x100/FF2D55/ffffff?text=🎵" alt="QQ音乐" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">QQ音乐</h3>
+                                    <p class="app-category">音乐</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.3</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="38">
+                                <div class="app-badge">TOP 18</div>
+                                <img data-src="https://via.placeholder.com/100x100/34A853/ffffff?text=🗺️" alt="地图" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">地图</h3>
+                                    <p class="app-category">导航</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.6</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="39">
+                                <div class="app-badge">TOP 19</div>
+                                <img data-src="https://via.placeholder.com/100x100/5856D6/ffffff?text=📱" alt="微博" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">微博</h3>
+                                    <p class="app-category">社交</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">☆</span>
+                                        <span class="rating-value">4.2</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                            <div class="app-card" data-id="40">
+                                <div class="app-badge">TOP 20</div>
+                                <img data-src="https://via.placeholder.com/100x100/FF9500/ffffff?text=📧" alt="邮件" class="app-image lazy">
+                                <div class="app-info">
+                                    <h3 class="app-name">邮件</h3>
+                                    <p class="app-category">工具</p>
+                                    <div class="app-rating">
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="star">★</span>
+                                        <span class="rating-value">4.5</span>
+                                    </div>
+                                    <p class="app-downloads">1亿+ 下载</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Today's Headlines Section -->
+        <section id="today-headlines" class="tab-content">
+            <!-- Bright Lizard Loader Effect -->
+            <div class="loader-container">
+                <div class="loader-wrapper">
+                    <span class="loader-letter">今</span>
+                    <span class="loader-letter">日</span>
+                    <span class="loader-letter">头</span>
+                    <span class="loader-letter">条</span>
+
+                    <div class="loader"></div>
+                </div>
+            </div>
+            
+
+            <!-- News List -->
+            <div class="headlines-grid">
+                <div class="headline-card" data-id="1">
+                    <img data-src="https://via.placeholder.com/300x180/0071e3/ffffff?text=News+1" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">最新科技发展：人工智能技术取得重大突破</h3>
+                        <p class="headline-source">科技日报</p>
+                        <p class="headline-time">2小时前</p>
+                    </div>
+                </div>
+                <div class="headline-card" data-id="2">
+                    <img data-src="https://via.placeholder.com/300x180/34aadc/ffffff?text=News+2" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">全球经济形势分析：2026年展望</h3>
+                        <p class="headline-source">经济观察报</p>
+                        <p class="headline-time">4小时前</p>
+                    </div>
+                </div>
+                <div class="headline-card" data-id="3">
+                    <img data-src="https://via.placeholder.com/300x180/ff9500/ffffff?text=News+3" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">体育赛事：国家队取得历史性胜利</h3>
+                        <p class="headline-source">体育周刊</p>
+                        <p class="headline-time">6小时前</p>
+                    </div>
+                </div>
+                <div class="headline-card" data-id="4">
+                    <img data-src="https://via.placeholder.com/300x180/5856d6/ffffff?text=News+4" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">健康生活：专家分享春季养生秘诀</h3>
+                        <p class="headline-source">健康时报</p>
+                        <p class="headline-time">8小时前</p>
+                    </div>
+                </div>
+                <div class="headline-card" data-id="5">
+                    <img data-src="https://via.placeholder.com/300x180/ff2d55/ffffff?text=News+5" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">文化热点：国产电影市场持续升温</h3>
+                        <p class="headline-source">文化周刊</p>
+                        <p class="headline-time">10小时前</p>
+                    </div>
+                </div>
+                <div class="headline-card" data-id="6">
+                    <img data-src="https://via.placeholder.com/300x180/4cd964/ffffff?text=News+6" alt="News" class="headline-image lazy">
+                    <div class="headline-content">
+                        <h3 class="headline-title">教育改革：新政策解读与影响分析</h3>
+                        <p class="headline-source">教育时报</p>
+                        <p class="headline-time">12小时前</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Frontier Information Section -->
+        <section id="frontier" class="tab-content">
+            <h2 class="section-title">前沿信息</h2>
+            <div class="frontier-content">
+                <div class="frontier-card" data-modal="trendsModal">
+                    <div class="frontier-icon">🚀</div>
+                    <h3 class="frontier-title">应用趋势</h3>
+                    <p class="frontier-description">探索当前最热门的应用趋势，了解最新的应用类别和功能创新，把握应用市场的发展方向。</p>
+                    <a href="#" class="frontier-link">了解更多 →</a>
+                </div>
+                <div class="frontier-card" data-modal="shareModal">
+                    <div class="frontier-icon">📤</div>
+                    <h3 class="frontier-title">应用分享</h3>
+                    <p class="frontier-description">发现并分享优质应用，参与应用推荐活动，获得独家应用优惠，与其他用户交流使用心得。</p>
+                    <a href="#" class="frontier-link">了解更多 →</a>
+                </div>
+                <div class="frontier-card" data-modal="commentsModal">
+                    <div class="frontier-icon">💬</div>
+                    <h3 class="frontier-title">评论互动</h3>
+                    <p class="frontier-description">查看真实用户评论，参与应用讨论，分享使用技巧，影响应用开发者改进产品。</p>
+                    <a href="#" class="frontier-link">了解更多 →</a>
+                </div>
+                <div class="frontier-card" data-modal="communityModal">
+                    <div class="frontier-icon">👥</div>
+                    <h3 class="frontier-title">社区互动</h3>
+                    <p class="frontier-description">加入应用爱好者社区，参与主题讨论，参加线上线下活动，结交志同道合的朋友。</p>
+                    <a href="#" class="frontier-link">了解更多 →</a>
+                </div>
+                <div class="frontier-card" data-modal="friendsModal">
+                    <div class="frontier-icon">👫</div>
+                    <h3 class="frontier-title">好友动态</h3>
+                    <p class="frontier-description">查看好友的应用活动，了解他们最近下载的应用，分享应用使用体验，一起发现好应用。</p>
+                    <a href="#" class="frontier-link">了解更多 →</a>
+                </div>
+                <div class="frontier-card">
+                    <div class="frontier-icon">📢</div>
+                    <h3 class="frontier-title">更新公告</h3>
+                    <p class="frontier-description">了解App Store的最新更新、新功能上线、系统维护通知以及重要公告。</p>
+                    <a href="#" class="frontier-link" id="updateToggle">查看更新 →</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- News Modal -->
+    <div class="news-modal" id="newsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="" alt="News Image" class="modal-image" id="modalImage">
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span class="modal-source" id="modalSource"></span>
+                    <span class="modal-time" id="modalTime"></span>
+                </div>
+                <div class="modal-content-text" id="modalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="modal-btn primary">分享</button>
+                    <button class="modal-btn secondary">收藏</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Details Modal -->
+    <div class="app-modal" id="appModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close" id="appModalClose">&times;</button>
+                <img src="" alt="App Icon" class="app-modal-icon" id="appModalIcon">
+                <h2 class="app-modal-name" id="appModalName"></h2>
+                <p class="app-modal-category" id="appModalCategory"></p>
+                <div class="app-modal-rating" id="appModalRating">
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="star">★</span>
+                    <span class="rating-value" id="appModalRatingValue">4.9</span>
+                </div>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">应用介绍</h3>
+                    <p class="app-modal-description" id="appModalDescription">这是一款功能强大的应用，为用户提供优质的使用体验。</p>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">应用截图</h3>
+                    <div class="app-modal-screenshots">
+                        <img src="https://via.placeholder.com/120x213/0071e3/ffffff?text=Screenshot+1" alt="Screenshot 1" class="app-modal-screenshot">
+                        <img src="https://via.placeholder.com/120x213/34aadc/ffffff?text=Screenshot+2" alt="Screenshot 2" class="app-modal-screenshot">
+                        <img src="https://via.placeholder.com/120x213/ff9500/ffffff?text=Screenshot+3" alt="Screenshot 3" class="app-modal-screenshot">
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">应用信息</h3>
+                    <div class="app-modal-info">
+                        <div class="app-modal-info-item"><span class="app-modal-info-label">开发商：</span><span id="appModalDeveloper">App Developer</span></div>
+                        <div class="app-modal-info-item"><span class="app-modal-info-label">大小：</span><span id="appModalSize">100 MB</span></div>
+                        <div class="app-modal-info-item"><span class="app-modal-info-label">版本：</span><span id="appModalVersion">1.0.0</span></div>
+                        <div class="app-modal-info-item"><span class="app-modal-info-label">兼容性：</span><span id="appModalCompatibility">iOS 15.0+</span></div>
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">版本历史</h3>
+                    <div class="version-history" id="appModalVersionHistory">
+                        <!-- 版本历史将通过JavaScript动态填充 -->
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">用户评论</h3>
+                    <div class="app-comments" id="appModalComments">
+                        <!-- 评论将通过JavaScript动态填充 -->
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn" id="appModalGetBtn">获取</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Announcements Modal -->
+    <div class="app-modal" id="updateModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close" id="updateModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">📢</div>
+                <h2 class="app-modal-name">更新公告</h2>
+                <p class="app-modal-category">App Store 最新动态</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">最新更新</h3>
+                    <div class="update-content" id="modalUpdateContent">
+                        <!-- 更新内容将通过JavaScript动态填充 -->
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn" id="updateModalCloseBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 应用趋势模态框 -->
+    <div class="app-modal" id="trendsModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close trendsModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">🚀</div>
+                <h2 class="app-modal-name">应用趋势</h2>
+                <p class="app-modal-category">探索应用市场的发展方向</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">热门应用类别</h3>
+                    <p class="app-modal-description">当前市场上最热门的应用类别包括：</p>
+                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>人工智能助手应用</li>
+                        <li>健康与健身追踪</li>
+                        <li>远程办公工具</li>
+                        <li>沉浸式娱乐体验</li>
+                        <li>教育与技能培训</li>
+                    </ul>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">功能创新趋势</h3>
+                    <p class="app-modal-description">应用开发的最新趋势：</p>
+                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>AI驱动的个性化推荐</li>
+                        <li>增强现实(AR)功能</li>
+                        <li>区块链技术集成</li>
+                        <li>超低延迟实时通信</li>
+                        <li>生态系统整合</li>
+                    </ul>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">市场预测</h3>
+                    <p class="app-modal-description">未来12个月应用市场预测：</p>
+                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>AI应用将增长300%</li>
+                        <li>健康类应用用户将达到5亿</li>
+                        <li>AR应用将成为主流</li>
+                        <li>企业级应用需求激增</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn trendsModalClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 应用分享模态框 -->
+    <div class="app-modal" id="shareModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close shareModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">📤</div>
+                <h2 class="app-modal-name">应用分享</h2>
+                <p class="app-modal-category">发现并分享优质应用</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">热门分享</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #0071e3 0%, #00c6ff 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎮</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">超级游戏</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">1.2k 分享</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #34aadc 0%, #007aff 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">💬</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">社交达人</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">980 分享</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎵</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">音乐播放器</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">850 分享</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #5856d6 0%, #af52de 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎬</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">视频剪辑</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">720 分享</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">分享奖励</h3>
+                    <p class="app-modal-description">分享应用获得独家优惠：</p>
+                    <ul style="margin-top: 1rem; padding-left: 1.5rem;">
+                        <li>每成功分享1个应用，获得50积分</li>
+                        <li>分享的应用被下载，额外获得100积分</li>
+                        <li>积分可兑换应用内购项目</li>
+                        <li>每月分享榜前三名获得实物奖励</li>
+                    </ul>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">分享方式</h3>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-primary); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>微信</span>
+                        </button>
+                        <button style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-primary); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>QQ</span>
+                        </button>
+                        <button style="flex: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-primary); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span>复制链接</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn shareModalClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 评论互动模态框 -->
+    <div class="app-modal" id="commentsModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close commentsModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
+                <h2 class="app-modal-name">评论互动</h2>
+                <p class="app-modal-category">分享使用体验，影响应用改进</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">热门评论</h3>
+                    <div class="app-comments">
+                        <div class="comment-item">
+                            <div class="comment-avatar" style="background: linear-gradient(135deg, #0071e3 0%, #00c6ff 100%); display: flex; align-items: center; justify-content: center; color: white;">U1</div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <span class="comment-user">用户123</span>
+                                    <div class="comment-rating">★★★★★</div>
+                                </div>
+                                <p class="comment-text">超级游戏真的太棒了！画面精美，玩法丰富，是我最近玩过的最好玩的游戏之一。推荐给所有喜欢动作游戏的朋友！</p>
+                                <div class="comment-footer">
+                                    <span class="comment-date">2026-02-25</span>
+                                    <div class="comment-actions">
+                                        <button class="comment-like">👍 24</button>
+                                        <button class="comment-reply">💬 3</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comment-item">
+                            <div class="comment-avatar" style="background: linear-gradient(135deg, #34aadc 0%, #007aff 100%); display: flex; align-items: center; justify-content: center; color: white;">U2</div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <span class="comment-user">游戏达人</span>
+                                    <div class="comment-rating">★★★★☆</div>
+                                </div>
+                                <p class="comment-text">社交达人的界面设计很简洁，使用起来很流畅。但是希望能增加更多的社交功能，比如小组活动之类的。</p>
+                                <div class="comment-footer">
+                                    <span class="comment-date">2026-02-24</span>
+                                    <div class="comment-actions">
+                                        <button class="comment-like">👍 18</button>
+                                        <button class="comment-reply">💬 2</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comment-item">
+                            <div class="comment-avatar" style="background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); display: flex; align-items: center; justify-content: center; color: white;">U3</div>
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <span class="comment-user">音乐爱好者</span>
+                                    <div class="comment-rating">★★★★★</div>
+                                </div>
+                                <p class="comment-text">音乐播放器的音效调节功能非常专业，支持多种音频格式，是我用过的最好的音乐应用之一。</p>
+                                <div class="comment-footer">
+                                    <span class="comment-date">2026-02-23</span>
+                                    <div class="comment-actions">
+                                        <button class="comment-like">👍 32</button>
+                                        <button class="comment-reply">💬 5</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">发表评论</h3>
+                    <div class="comment-input-section">
+                        <textarea class="comment-input" placeholder="分享你的使用体验..."></textarea>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span>评分：</span>
+                            <div style="display: flex;">
+                                <button style="background: none; border: none; font-size: 1.2rem; color: #ccc; cursor: pointer;">★</button>
+                                <button style="background: none; border: none; font-size: 1.2rem; color: #ccc; cursor: pointer;">★</button>
+                                <button style="background: none; border: none; font-size: 1.2rem; color: #ccc; cursor: pointer;">★</button>
+                                <button style="background: none; border: none; font-size: 1.2rem; color: #ccc; cursor: pointer;">★</button>
+                                <button style="background: none; border: none; font-size: 1.2rem; color: #ccc; cursor: pointer;">★</button>
+                            </div>
+                        </div>
+                        <button class="comment-submit">发表评论</button>
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn commentsModalClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 社区互动模态框 -->
+    <div class="app-modal" id="communityModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close communityModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">👥</div>
+                <h2 class="app-modal-name">社区互动</h2>
+                <p class="app-modal-category">加入应用爱好者社区</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">热门社区</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; text-align: center;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #0071e3 0%, #00c6ff 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🎮</div>
+                            <h4 style="margin-bottom: 0.25rem;">游戏社区</h4>
+                            <p style="font-size: 0.8rem; color: #86868b;">12,458 成员</p>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; text-align: center;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #34aadc 0%, #007aff 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">💬</div>
+                            <h4 style="margin-bottom: 0.25rem;">社交社区</h4>
+                            <p style="font-size: 0.8rem; color: #86868b;">8,762 成员</p>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; text-align: center;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🎵</div>
+                            <h4 style="margin-bottom: 0.25rem;">音乐社区</h4>
+                            <p style="font-size: 0.8rem; color: #86868b;">6,345 成员</p>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; text-align: center;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #5856d6 0%, #af52de 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">🎬</div>
+                            <h4 style="margin-bottom: 0.25rem;">视频社区</h4>
+                            <p style="font-size: 0.8rem; color: #86868b;">5,219 成员</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">近期活动</h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem;">
+                            <h4 style="margin-bottom: 0.5rem;">游戏开发线上讲座</h4>
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">邀请业内专家分享游戏开发经验和技巧</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">时间：2026-03-10 19:00</p>
+                            <button style="margin-top: 0.5rem; padding: 0.5rem 1rem; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 0.9rem;">报名参加</button>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px;">
+                            <h4 style="margin-bottom: 0.5rem;">应用设计大赛</h4>
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">展示你的应用设计创意，赢取丰厚奖品</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">截止日期：2026-03-31</p>
+                            <button style="margin-top: 0.5rem; padding: 0.5rem 1rem; background-color: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 0.9rem;">立即参赛</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn communityModalClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 好友动态模态框 -->
+    <div class="app-modal" id="friendsModal">
+        <div class="app-modal-content">
+            <div class="app-modal-header">
+                <button class="app-modal-close friendsModalClose">&times;</button>
+                <div class="frontier-icon" style="font-size: 2rem; margin-bottom: 1rem;">👫</div>
+                <h2 class="app-modal-name">好友动态</h2>
+                <p class="app-modal-category">查看好友的应用活动</p>
+            </div>
+            <div class="app-modal-body">
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">最近动态</h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #0071e3 0%, #00c6ff 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">A</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin-bottom: 0.25rem;">Alice</h4>
+                                <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">下载了 <span style="font-weight: 600;">超级游戏</span></p>
+                                <p style="font-size: 0.8rem; color: #86868b;">2小时前</p>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #34aadc 0%, #007aff 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">B</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin-bottom: 0.25rem;">Bob</h4>
+                                <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">给 <span style="font-weight: 600;">音乐播放器</span> 打了5星好评</p>
+                                <p style="font-size: 0.8rem; color: #86868b;">4小时前</p>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">C</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin-bottom: 0.25rem;">Carol</h4>
+                                <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">分享了 <span style="font-weight: 600;">视频剪辑</span> 应用</p>
+                                <p style="font-size: 0.8rem; color: #86868b;">6小时前</p>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; display: flex; gap: 1rem;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #5856d6 0%, #af52de 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">D</div>
+                            <div style="flex: 1;">
+                                <h4 style="margin-bottom: 0.25rem;">David</h4>
+                                <p style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">在 <span style="font-weight: 600;">社交达人</span> 中发布了动态</p>
+                                <p style="font-size: 0.8rem; color: #86868b;">8小时前</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-modal-section">
+                    <h3 class="app-modal-section-title">推荐应用</h3>
+                    <p class="app-modal-description">基于好友活动推荐的应用：</p>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #4cd964 0%, #34c759 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🏥</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">健康管理</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">3位好友使用</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #ff2d55 0%, #ff3b30 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">💰</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">财务管理</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">2位好友使用</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #5856d6 0%, #af52de 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎬</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">视频剪辑</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">4位好友使用</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #ff9500 0%, #ff5e3a 100%); margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">🎵</div>
+                            <p style="font-size: 0.9rem; font-weight: 600;">音乐播放器</p>
+                            <p style="font-size: 0.8rem; color: #86868b;">5位好友使用</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="app-modal-footer">
+                <button class="app-modal-btn friendsModalClose">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>App Store</h3>
+                <ul>
+                    <li><a href="#">关于我们</a></li>
+                    <li><a href="#">联系我们</a></li>
+                    <li><a href="#">开发者</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>支持</h3>
+                <ul>
+                    <li><a href="#">帮助中心</a></li>
+                    <li><a href="#">常见问题</a></li>
+                    <li><a href="#">隐私政策</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>关注我们</h3>
+                <ul>
+                    <li><a href="#">微信公众号</a></li>
+                    <li><a href="#">微博</a></li>
+                    <li><a href="#">抖音</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 App Store. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all tab links
+            const tabLinks = document.querySelectorAll('nav a');
+            
+            // Get all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Hide all tab contents except the first one
+            tabContents.forEach((content, index) => {
+                if (index > 0) {
+                    content.style.display = 'none';
+                }
+            });
+            
+            // Add click event listeners to tab links
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Get the target section ID
+                    const targetId = this.getAttribute('href');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Show the target tab content
+                    const targetContent = document.querySelector(targetId);
+                    if (targetContent) {
+                        targetContent.style.display = 'block';
+                    }
+                });
+            });
+            
+
+            
+            // News data
+            const newsData = {
+                1: {
+                    title: "最新科技发展：人工智能技术取得重大突破",
+                    source: "科技日报",
+                    time: "2小时前",
+                    image: "https://via.placeholder.com/800x400/0071e3/ffffff?text=Breaking+News",
+                    content: "<p>据科技日报报道，近日人工智能领域取得了重大突破性进展。研究人员开发出了新一代的深度学习模型，能够在多种任务上达到甚至超越人类水平。</p><p>这项技术不仅在图像识别、自然语言处理等传统领域表现出色，还在更复杂的逻辑推理和创造性任务中展现出惊人能力。专家预测，这一突破将为各行各业带来革命性变化。</p><p>相关研究成果已经发表在国际顶级期刊上，引起了全球科技界的广泛关注。多家科技巨头已经开始布局相关技术的商业化应用。</p>"
+                },
+                2: {
+                    title: "全球经济形势分析：2026年展望",
+                    source: "经济观察报",
+                    time: "4小时前",
+                    image: "https://via.placeholder.com/800x400/34aadc/ffffff?text=Business+News",
+                    content: "<p>经济观察报最新发布的《2026年全球经济展望》报告显示，全球经济正在逐步复苏，预计2026年增长率将达到3.5%。</p><p>报告指出，新兴市场国家经济增长势头强劲，特别是亚洲地区将继续成为全球经济增长的引擎。同时，发达国家的经济也呈现出稳定增长的态势。</p><p>然而，报告也警告称，全球经济仍面临着通胀压力、地缘政治风险等挑战。专家建议各国应加强合作，共同应对这些全球性挑战。</p>"
+                },
+                3: {
+                    title: "体育赛事：国家队取得历史性胜利",
+                    source: "体育周刊",
+                    time: "6小时前",
+                    image: "https://via.placeholder.com/800x400/ff9500/ffffff?text=Sports+News",
+                    content: "<p>在刚刚结束的国际体育赛事中，国家队表现出色，取得了历史性的胜利。这是我国在该项目上首次获得金牌，创造了新的历史。</p><p>比赛中，运动员们展现出了顽强拼搏的精神和高超的技艺，在关键时刻顶住压力，最终赢得了比赛。现场观众的欢呼声此起彼伏，气氛热烈。</p><p>赛后，主教练表示，这一胜利是全队上下共同努力的结果，也是长期刻苦训练的回报。他希望队员们能够再接再厉，在未来的比赛中取得更好的成绩。</p>"
+                },
+                4: {
+                    title: "健康生活：专家分享春季养生秘诀",
+                    source: "健康时报",
+                    time: "8小时前",
+                    image: "https://via.placeholder.com/800x400/5856d6/ffffff?text=Health+News",
+                    content: "<p>随着春季的到来，气温逐渐升高，万物复苏。健康时报特邀知名养生专家，为读者分享春季养生的秘诀。</p><p>专家建议，春季应注意调节情绪，保持心情舒畅；适当增加户外活动，呼吸新鲜空气；饮食上应以清淡为主，多吃时令蔬果。</p><p>此外，专家还提醒，春季是过敏的高发季节，过敏体质的人群应注意防护，避免接触过敏原。同时，要保持规律的作息时间，保证充足的睡眠。</p>"
+                },
+                5: {
+                    title: "文化热点：国产电影市场持续升温",
+                    source: "文化周刊",
+                    time: "10小时前",
+                    image: "https://via.placeholder.com/800x400/ff2d55/ffffff?text=Culture+News",
+                    content: "<p>近年来，国产电影市场持续升温，票房屡创新高。据文化周刊报道，今年一季度国产电影票房占比超过80%，创下历史新高。</p><p>业内人士分析，国产电影质量的提升是票房增长的主要原因。越来越多的国产电影在制作水平、剧情设计、演员表演等方面都达到了国际水准，赢得了观众的认可。</p><p>同时，政策的支持也为国产电影的发展创造了良好的环境。专家预测，随着中国电影产业的不断成熟，国产电影将在国际舞台上发挥更加重要的作用。</p>"
+                },
+                6: {
+                    title: "教育改革：新政策解读与影响分析",
+                    source: "教育时报",
+                    time: "12小时前",
+                    image: "https://via.placeholder.com/800x400/4cd964/ffffff?text=Education+News",
+                    content: "<p>近日，教育部发布了一系列教育改革新政策，引起了社会各界的广泛关注。教育时报特邀专家对这些政策进行解读，并分析其可能产生的影响。</p><p>专家指出，此次改革的重点是促进教育公平，提高教育质量，培养学生的创新精神和实践能力。具体措施包括优化教育资源配置、改革评价体系、加强教师队伍建设等。</p><p>这些政策的实施将对我国教育事业的发展产生深远影响。专家建议，学校和家长应积极适应这些变化，为学生的全面发展创造良好的环境。</p>"
+                }
+            };
+            
+            // News Modal Functionality
+            const newsModal = document.getElementById('newsModal');
+            const modalClose = document.getElementById('modalClose');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSource = document.getElementById('modalSource');
+            const modalTime = document.getElementById('modalTime');
+            const modalImage = document.getElementById('modalImage');
+            const modalContent = document.getElementById('modalContent');
+            const headlineCards = document.querySelectorAll('.headline-card');
+            const body = document.body;
+            
+            // Open modal when clicking on a news card
+            headlineCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const newsId = this.getAttribute('data-id');
+                    const news = newsData[newsId];
+                    
+                    if (news) {
+                        // Fill modal with news data
+                        modalTitle.textContent = news.title;
+                        modalSource.textContent = news.source;
+                        modalTime.textContent = news.time;
+                        modalImage.src = news.image;
+                        modalContent.innerHTML = news.content;
+                        
+                        // Show modal
+                        newsModal.classList.add('active');
+                        body.classList.add('modal-active');
+                        
+                        // Disable scroll on body
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+            
+            // Close modal when clicking close button
+            modalClose.addEventListener('click', closeModal);
+            
+            // Close modal when clicking outside the modal content
+            newsModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && newsModal.classList.contains('active')) {
+                    closeModal();
+                }
+            });
+            
+            function closeModal() {
+                newsModal.classList.remove('active');
+                body.classList.remove('modal-active');
+                document.body.style.overflow = 'auto';
+            }
+            
+            // App data
+            const appData = {
+                1: {
+                    name: "超级游戏",
+                    category: "游戏",
+                    rating: "4.9",
+                    icon: "https://via.placeholder.com/120x120/0071e3/ffffff?text=🎮",
+                    description: "超级游戏是一款画面精美的3D动作游戏，拥有丰富的关卡和挑战。玩家可以选择不同的角色，使用各种技能击败敌人，解锁新的装备和能力。游戏支持多人在线对战，与好友一起组队冒险。",
+                    developer: "游戏开发工作室",
+                    size: "1.2 GB",
+                    version: "2.5.0",
+                    compatibility: "iOS 14.0+",
+                    website: "https://www.supergame.com",
+                    versionHistory: [
+                        {
+                            version: "2.5.0",
+                            date: "2026-02-20",
+                            changes: ["新增3个新关卡", "优化游戏性能", "修复已知bug"]
+                        },
+                        {
+                            version: "2.4.0",
+                            date: "2026-01-15",
+                            changes: ["添加新角色", "增加多人模式", "改进游戏画质"]
+                        },
+                        {
+                            version: "2.3.0",
+                            date: "2025-12-10",
+                            changes: ["修复游戏崩溃问题", "优化控制体验"]
+                        }
+                    ],
+                    comments: [
+                        {
+                            id: 1,
+                            user: "游戏达人",
+                            avatar: "https://via.placeholder.com/48x48/0071e3/ffffff?text=G1",
+                            rating: 5,
+                            content: "这是我玩过的最好玩的游戏之一！画面精美，玩法丰富，关卡设计很有创意。推荐给所有喜欢动作游戏的朋友！",
+                            date: "2026-02-25",
+                            likes: 24,
+                            replies: 3
+                        },
+                        {
+                            id: 2,
+                            user: "休闲玩家",
+                            avatar: "https://via.placeholder.com/48x48/34aadc/ffffff?text=C2",
+                            rating: 4,
+                            content: "游戏不错，就是有些关卡难度有点高，希望能增加难度调节选项。整体来说还是很推荐的。",
+                            date: "2026-02-24",
+                            likes: 12,
+                            replies: 1
+                        },
+                        {
+                            id: 3,
+                            user: "技术玩家",
+                            avatar: "https://via.placeholder.com/48x48/ff9500/ffffff?text=T3",
+                            rating: 5,
+                            content: "游戏的技术表现非常出色，流畅度很高，特效也很华丽。多人模式特别有意思，可以和朋友一起组队冒险。",
+                            date: "2026-02-23",
+                            likes: 18,
+                            replies: 2
+                        }
+                    ]
+                },
+                2: {
+                    name: "社交达人",
+                    category: "社交",
+                    rating: "4.2",
+                    icon: "https://via.placeholder.com/120x120/34aadc/ffffff?text=💬",
+                    description: "社交达人是一款全新的社交应用，让你轻松结识新朋友，分享生活点滴。支持文字、语音、视频聊天，还有丰富的表情包和滤镜效果。创建兴趣群组，找到志同道合的伙伴。",
+                    developer: "社交科技有限公司",
+                    size: "250 MB",
+                    version: "1.8.3",
+                    compatibility: "iOS 13.0+",
+                    website: "https://www.sociallover.com"
+                },
+                3: {
+                    name: "音乐播放器",
+                    category: "音乐",
+                    rating: "4.8",
+                    icon: "https://via.placeholder.com/120x120/ff9500/ffffff?text=🎵",
+                    description: "音乐播放器是一款功能强大的音乐应用，支持多种音频格式，拥有专业的音效调节功能。内置海量音乐库，个性化推荐算法，让你发现更多喜欢的音乐。支持离线下载，随时随地享受音乐。",
+                    developer: "音乐科技公司",
+                    size: "180 MB",
+                    version: "3.2.1",
+                    compatibility: "iOS 14.0+",
+                    website: "https://www.musicplayer.com"
+                },
+                4: {
+                    name: "视频剪辑",
+                    category: "视频",
+                    rating: "4.3",
+                    icon: "https://via.placeholder.com/120x120/5856d6/ffffff?text=🎬",
+                    description: "视频剪辑是一款专业的视频编辑应用，支持多轨编辑、滤镜效果、转场动画等功能。内置丰富的素材库，包括音乐、特效、贴纸等。简单易用的界面，让你轻松制作专业水准的视频。",
+                    developer: "视频科技有限公司",
+                    size: "350 MB",
+                    version: "2.1.0",
+                    compatibility: "iOS 15.0+",
+                    website: "https://www.videocut.com"
+                },
+                5: {
+                    name: "健康管理",
+                    category: "健康",
+                    rating: "4.7",
+                    icon: "https://via.placeholder.com/120x120/4cd964/ffffff?text=🏥",
+                    description: "健康管理应用帮助你追踪日常活动、饮食习惯和睡眠质量。设置健康目标，获得个性化的健康建议。连接智能设备，实时监测身体数据。生成详细的健康报告，让你更好地了解自己的健康状况。",
+                    developer: "健康科技公司",
+                    size: "120 MB",
+                    version: "1.9.5",
+                    compatibility: "iOS 14.0+",
+                    website: "https://www.healthmanager.com"
+                },
+                6: {
+                    name: "财务管理",
+                    category: "财务",
+                    rating: "4.4",
+                    icon: "https://via.placeholder.com/120x120/ff2d55/ffffff?text=💰",
+                    description: "财务管理应用帮助你管理个人财务，追踪收支情况，制定预算计划。支持多种账户管理，自动分类交易记录。生成财务报表，让你清晰了解自己的财务状况。数据加密存储，保障你的财务安全。",
+                    developer: "金融科技有限公司",
+                    size: "80 MB",
+                    version: "2.3.0",
+                    compatibility: "iOS 13.0+",
+                    website: "https://www.financemanager.com"
+                },
+                7: {
+                    name: "微信",
+                    category: "社交",
+                    rating: "4.9",
+                    icon: "https://via.placeholder.com/120x120/07C160/ffffff?text=💬",
+                    description: "微信是一款跨平台的通讯工具，支持单人、多人参与，通过手机网络发送语音、图片、视频和文字。微信提供公众平台、朋友圈、消息推送等功能。",
+                    developer: "腾讯科技",
+                    size: "256 MB",
+                    version: "8.0.60",
+                    compatibility: "iOS 13.0+",
+                    website: "https://weixin.qq.com"
+                },
+                8: {
+                    name: "QQ",
+                    category: "社交",
+                    rating: "4.7",
+                    icon: "https://via.placeholder.com/120x120/12B7F5/ffffff?text=🐧",
+                    description: "QQ是腾讯QQ的简称，是一款基于Internet的即时通信软件。支持在线聊天、视频通话、点对点断点续传文件、共享文件、网络硬盘、自定义面板、QQ邮箱等多种功能。",
+                    developer: "腾讯科技",
+                    size: "320 MB",
+                    version: "8.9.85",
+                    compatibility: "iOS 12.0+",
+                    website: "https://im.qq.com"
+                },
+                9: {
+                    name: "抖音",
+                    category: "视频",
+                    rating: "4.8",
+                    icon: "https://via.placeholder.com/120x120/FE2C55/ffffff?text=🎵",
+                    description: "抖音，是由字节跳动孵化的一款音乐创意短视频社交软件。该软件于2016年9月20日上线，是一个面向全年龄的短视频社区平台。",
+                    developer: "字节跳动",
+                    size: "180 MB",
+                    version: "28.5.0",
+                    compatibility: "iOS 14.0+",
+                    website: "https://www.douyin.com"
+                },
+                10: {
+                    name: "支付宝",
+                    category: "金融",
+                    rating: "4.6",
+                    icon: "https://via.placeholder.com/120x120/1677FF/ffffff?text=💰",
+                    description: "支付宝（中国）网络技术有限公司是国内的第三方支付平台，致力于提供简单、安全、快速的支付解决方案。支付宝公司从2004年建立开始，始终以信任作为产品和服务的核心。",
+                    developer: "蚂蚁集团",
+                    size: "150 MB",
+                    version: "10.5.36",
+                    compatibility: "iOS 13.0+",
+                    website: "https://www.alipay.com"
+                },
+                11: {
+                    name: "淘宝",
+                    category: "购物",
+                    rating: "4.5",
+                    icon: "https://via.placeholder.com/120x120/FF6700/ffffff?text=🛒",
+                    description: "淘宝是亚太地区较大的网络零售、商圈，由阿里巴巴集团在2003年5月创立。淘宝是中国深受欢迎的网购零售平台，拥有近5亿的注册用户数。",
+                    developer: "阿里巴巴",
+                    size: "200 MB",
+                    version: "10.25.0",
+                    compatibility: "iOS 13.0+",
+                    website: "https://www.taobao.com"
+                },
+                12: {
+                    name: "美团",
+                    category: "生活",
+                    rating: "4.7",
+                    icon: "https://via.placeholder.com/120x120/FFB000/ffffff?text=🍔",
+                    description: "美团是一家科技零售公司。美团以帮大家吃得更好，生活更好为使命，聚焦零售，通过科技创新，帮助大家吃得更好，生活更好。",
+                    developer: "美团",
+                    size: "185 MB",
+                    version: "12.8.406",
+                    compatibility: "iOS 13.0+",
+                    website: "https://www.meituan.com"
+                }
+            };
+            
+            // App Details Modal Functionality
+            const appModal = document.getElementById('appModal');
+            const appModalClose = document.getElementById('appModalClose');
+            const appModalIcon = document.getElementById('appModalIcon');
+            const appModalName = document.getElementById('appModalName');
+            const appModalCategory = document.getElementById('appModalCategory');
+            const appModalRatingValue = document.getElementById('appModalRatingValue');
+            const appModalDescription = document.getElementById('appModalDescription');
+            const appModalDeveloper = document.getElementById('appModalDeveloper');
+            const appModalSize = document.getElementById('appModalSize');
+            const appModalVersion = document.getElementById('appModalVersion');
+            const appModalCompatibility = document.getElementById('appModalCompatibility');
+            const appCards = document.querySelectorAll('.app-card');
+            
+            // Open modal when clicking on an app card
+            appCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.getAttribute('data-id');
+                    const app = appData[appId];
+                    
+                    if (app) {
+                        // 保存当前应用数据
+                        setCurrentAppData(app);
+                        
+                        // Fill modal with app data
+                        appModalIcon.src = app.icon;
+                        appModalName.textContent = app.name;
+                        appModalCategory.textContent = app.category;
+                        appModalRatingValue.textContent = app.rating;
+                        appModalDescription.textContent = app.description;
+                        appModalDeveloper.textContent = app.developer;
+                        appModalSize.textContent = app.size;
+                        appModalVersion.textContent = app.version;
+                        appModalCompatibility.textContent = app.compatibility;
+                        
+                        // Fill version history
+                        const versionHistory = document.getElementById('appModalVersionHistory');
+                        if (versionHistory) {
+                            if (app.versionHistory) {
+                                versionHistory.innerHTML = '';
+                                app.versionHistory.forEach(version => {
+                                    const versionItem = document.createElement('div');
+                                    versionItem.className = 'version-item';
+                                    versionItem.innerHTML = `
+                                        <div class="version-number">版本 ${version.version}</div>
+                                        <div class="version-date">${version.date}</div>
+                                        <div class="version-changes">
+                                            <ul>
+                                                ${version.changes.map(change => `<li>${change}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    `;
+                                    versionHistory.appendChild(versionItem);
+                                });
+                            } else {
+                                versionHistory.innerHTML = '<p>暂无版本历史记录</p>';
+                            }
+                        }
+                        
+                        // Fill comments
+                        const commentsContainer = document.getElementById('appModalComments');
+                        if (commentsContainer) {
+                            if (app.comments) {
+                                commentsContainer.innerHTML = '';
+                                app.comments.forEach(comment => {
+                                    const commentItem = document.createElement('div');
+                                    commentItem.className = 'comment-item';
+                                    commentItem.innerHTML = `
+                                        <img src="${comment.avatar}" alt="${comment.user}" class="comment-avatar">
+                                        <div class="comment-content">
+                                            <div class="comment-header">
+                                                <span class="comment-user">${comment.user}</span>
+                                                <div class="comment-rating">${'★'.repeat(comment.rating)}${'☆'.repeat(5 - comment.rating)}</div>
+                                            </div>
+                                            <p class="comment-text">${comment.content}</p>
+                                            <div class="comment-footer">
+                                                <span class="comment-date">${comment.date}</span>
+                                                <div class="comment-actions">
+                                                    <button class="comment-like">👍 ${comment.likes}</button>
+                                                    <button class="comment-reply">💬 ${comment.replies}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    commentsContainer.appendChild(commentItem);
+                                });
+                                
+                                // Add comment input section
+                                const commentInputSection = document.createElement('div');
+                                commentInputSection.className = 'comment-input-section';
+                                commentInputSection.innerHTML = `
+                                    <h4>发表评论</h4>
+                                    <textarea class="comment-input" placeholder="分享你的使用体验..."></textarea>
+                                    <button class="comment-submit">发表评论</button>
+                                `;
+                                commentsContainer.appendChild(commentInputSection);
+                            } else {
+                                commentsContainer.innerHTML = '<p>暂无评论，成为第一个评论的人吧！</p>';
+                            }
+                        }
+                        
+                        // Show modal
+                        appModal.classList.add('active');
+                        body.classList.add('modal-active');
+                        
+                        // Disable scroll on body
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+            
+            // Close modal when clicking close button
+            appModalClose.addEventListener('click', closeAppModal);
+            
+            // Close modal when clicking outside the modal content
+            appModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeAppModal();
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && appModal.classList.contains('active')) {
+                    closeAppModal();
+                }
+            });
+            
+            function closeAppModal() {
+                appModal.classList.remove('active');
+                body.classList.remove('modal-active');
+                document.body.style.overflow = 'auto';
+            }
+            
+            // App button functionality
+            const appButtons = document.querySelectorAll('.app-btn');
+            
+            appButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    if (this.textContent === '获取') {
+                        this.textContent = '安装中...';
+                        this.classList.add('installing');
+                        
+                        setTimeout(() => {
+                            this.textContent = '打开';
+                            this.classList.remove('installing');
+                            this.classList.add('open');
+                        }, 2000);
+                    } else if (this.textContent === '打开') {
+                        alert('应用已启动！');
+                    }
+                });
+            });
+            
+            // App card click functionality for comprehensive apps - open modal
+            const comprehensiveAppCards = document.querySelectorAll('.comprehensive-app-card');
+            
+            comprehensiveAppCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const appId = this.getAttribute('data-id');
+                    const app = appData[appId];
+                    
+                    if (app) {
+                        // 保存当前应用数据
+                        setCurrentAppData(app);
+                        
+                        // Fill modal with app data
+                        appModalIcon.src = app.icon;
+                        appModalName.textContent = app.name;
+                        appModalCategory.textContent = app.category;
+                        appModalRatingValue.textContent = app.rating;
+                        appModalDescription.textContent = app.description;
+                        appModalDeveloper.textContent = app.developer;
+                        appModalSize.textContent = app.size;
+                        appModalVersion.textContent = app.version;
+                        appModalCompatibility.textContent = app.compatibility;
+                        
+                        // Fill version history
+                        const versionHistory = document.getElementById('appModalVersionHistory');
+                        if (versionHistory) {
+                            if (app.versionHistory) {
+                                versionHistory.innerHTML = '';
+                                app.versionHistory.forEach(version => {
+                                    const versionItem = document.createElement('div');
+                                    versionItem.className = 'version-item';
+                                    versionItem.innerHTML = `
+                                        <div class="version-number">版本 ${version.version}</div>
+                                        <div class="version-date">${version.date}</div>
+                                        <div class="version-changes">
+                                            <ul>
+                                                ${version.changes.map(change => `<li>${change}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                    `;
+                                    versionHistory.appendChild(versionItem);
+                                });
+                            } else {
+                                versionHistory.innerHTML = '<p>暂无版本历史记录</p>';
+                            }
+                        }
+                        
+                        // Fill comments
+                        const commentsContainer = document.getElementById('appModalComments');
+                        if (commentsContainer) {
+                            if (app.comments) {
+                                commentsContainer.innerHTML = '';
+                                app.comments.forEach(comment => {
+                                    const commentItem = document.createElement('div');
+                                    commentItem.className = 'comment-item';
+                                    commentItem.innerHTML = `
+                                        <img src="${comment.avatar}" alt="${comment.user}" class="comment-avatar">
+                                        <div class="comment-content">
+                                            <div class="comment-header">
+                                                <span class="comment-user">${comment.user}</span>
+                                                <div class="comment-rating">${'★'.repeat(comment.rating)}${'☆'.repeat(5 - comment.rating)}</div>
+                                            </div>
+                                            <p class="comment-text">${comment.content}</p>
+                                            <div class="comment-footer">
+                                                <span class="comment-date">${comment.date}</span>
+                                                <div class="comment-actions">
+                                                    <button class="comment-like">👍 ${comment.likes}</button>
+                                                    <button class="comment-reply">💬 ${comment.replies}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                    commentsContainer.appendChild(commentItem);
+                                });
+                                
+                                // Add comment input section
+                                const commentInputSection = document.createElement('div');
+                                commentInputSection.className = 'comment-input-section';
+                                commentInputSection.innerHTML = `
+                                    <h4>发表评论</h4>
+                                    <textarea class="comment-input" placeholder="分享你的使用体验..."></textarea>
+                                    <button class="comment-submit">发表评论</button>
+                                `;
+                                commentsContainer.appendChild(commentInputSection);
+                            } else {
+                                commentsContainer.innerHTML = '<p>暂无评论，成为第一个评论的人吧！</p>';
+                            }
+                        }
+                        
+                        // Reset button state
+                        appModalGetBtn.textContent = '获取';
+                        appModalGetBtn.classList.remove('installing', 'open');
+                        
+                        // Show modal
+                        appModal.classList.add('active');
+                        body.classList.add('modal-active');
+                        
+                        // Disable scroll on body
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+            
+            // App modal get button functionality
+            const appModalGetBtn = document.getElementById('appModalGetBtn');
+            let currentAppData = null;
+            
+            // 保存当前应用数据
+            function setCurrentAppData(app) {
+                currentAppData = app;
+            }
+            
+            appModalGetBtn.addEventListener('click', function() {
+                if (currentAppData && currentAppData.website) {
+                    // 跳转到应用官网
+                    window.open(currentAppData.website, '_blank');
+                } else {
+                    alert('该应用暂无官网链接');
+                }
+            });
+            
+            // Update公告模态框功能
+            const updateToggle = document.getElementById('updateToggle');
+            const updateModal = document.getElementById('updateModal');
+            const updateModalClose = document.getElementById('updateModalClose');
+            const updateModalCloseBtn = document.getElementById('updateModalCloseBtn');
+            const modalUpdateContent = document.getElementById('modalUpdateContent');
+            
+            // 打开更新公告模态框
+            if (updateToggle && updateModal) {
+                updateToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 更新模态框内容
+                    updateAnnouncements();
+                    
+                    // 显示模态框
+                    updateModal.classList.add('active');
+                    body.classList.add('modal-active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            
+            // 关闭更新公告模态框
+            function closeUpdateModal() {
+                if (updateModal) {
+                    updateModal.classList.remove('active');
+                    body.classList.remove('modal-active');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+            
+            if (updateModalClose) {
+                updateModalClose.addEventListener('click', closeUpdateModal);
+            }
+            
+            if (updateModalCloseBtn) {
+                updateModalCloseBtn.addEventListener('click', closeUpdateModal);
+            }
+            
+            if (updateModal) {
+                updateModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeUpdateModal();
+                    }
+                });
+            }
+            
+            // 按ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && updateModal && updateModal.classList.contains('active')) {
+                    closeUpdateModal();
+                }
+            });
+            
+            // Update公告实时更新功能
+            function updateAnnouncements() {
+                if (modalUpdateContent) {
+                    // 模拟实时更新数据
+                    const updates = [
+                        {
+                            date: new Date().toISOString().split('T')[0],
+                            title: '系统更新',
+                            description: '优化应用加载速度，修复已知问题'
+                        },
+                        {
+                            date: '2026-02-26',
+                            title: 'App Store v2.0 正式发布',
+                            description: '全新界面设计，优化用户体验，增加应用推荐算法'
+                        },
+                        {
+                            date: '2026-02-20',
+                            title: '系统维护通知',
+                            description: '将于2月22日凌晨2:00-4:00进行系统维护'
+                        },
+                        {
+                            date: '2026-02-15',
+                            title: '新功能上线',
+                            description: '增加应用评分和评论功能，优化搜索体验'
+                        }
+                    ];
+                    
+                    // 更新内容
+                    modalUpdateContent.innerHTML = '';
+                    
+                    updates.forEach((update, index) => {
+                        const updateItem = document.createElement('div');
+                        updateItem.className = 'update-item';
+                        updateItem.innerHTML = `
+                            <div class="update-date">${update.date}</div>
+                            <h4 class="update-title">${update.title}</h4>
+                            <p class="update-description">${update.description}</p>
+                        `;
+                        modalUpdateContent.appendChild(updateItem);
+                    });
+                }
+            }
+            
+            // 初始加载时更新
+            updateAnnouncements();
+            
+            // 每5分钟自动更新一次
+            setInterval(updateAnnouncements, 5 * 60 * 1000);
+            
+            // 前沿信息卡片点击功能
+            const frontierCards = document.querySelectorAll('.frontier-card[data-modal]');
+            
+            frontierCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const modalId = this.getAttribute('data-modal');
+                    const modal = document.getElementById(modalId);
+                    
+                    if (modal) {
+                        // 显示模态框
+                        modal.classList.add('active');
+                        body.classList.add('modal-active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+            
+            // 关闭前沿信息模态框
+            function closeFrontierModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.remove('active');
+                    body.classList.remove('modal-active');
+                    document.body.style.overflow = 'auto';
+                }
+            }
+            
+            // 为所有前沿信息模态框添加关闭事件
+            const frontierModalCloseButtons = document.querySelectorAll('.trendsModalClose, .shareModalClose, .commentsModalClose, .communityModalClose, .friendsModalClose');
+            
+            frontierModalCloseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const modal = this.closest('.app-modal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                        body.classList.remove('modal-active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // 点击模态框外部关闭
+            const frontierModals = document.querySelectorAll('#trendsModal, #shareModal, #commentsModal, #communityModal, #friendsModal');
+            
+            frontierModals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        body.classList.remove('modal-active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // 按ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    frontierModals.forEach(modal => {
+                        if (modal.classList.contains('active')) {
+                            modal.classList.remove('active');
+                            body.classList.remove('modal-active');
+                            document.body.style.overflow = 'auto';
+                        }
+                    });
+                }
+            });
+            
+            // 主题切换功能
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // 检查本地存储中的主题设置
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+            }
+            
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    themeToggle.textContent = '☀️';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeToggle.textContent = '🌙';
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+            
+            // 图片懒加载
+            function lazyLoadImages() {
+                const lazyImages = document.querySelectorAll('img[data-src]');
+                
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.classList.remove('lazy');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+                
+                lazyImages.forEach(img => imageObserver.observe(img));
+            }
+            
+            // 平滑滚动
+            function smoothScroll() {
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        const targetId = this.getAttribute('href');
+                        if (targetId === '#') return;
+                        
+                        const targetElement = document.querySelector(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
+            }
+            
+            // 视差滚动效果
+            function parallaxEffect() {
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.scrollY;
+                    
+                    // 为英雄区域添加视差效果
+                    const heroSection = document.querySelector('.hero-section');
+                    if (heroSection) {
+                        heroSection.style.transform = `translateY(${scrollPosition * 0.5}px)`;
+                    }
+                });
+            }
+            
+            // 初始化功能
+            lazyLoadImages();
+            smoothScroll();
+            parallaxEffect();
+            
+            // 评论系统交互功能
+            function initComments() {
+                // 点赞功能
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('comment-like')) {
+                        e.preventDefault();
+                        const likeButton = e.target;
+                        const currentLikes = parseInt(likeButton.textContent.match(/\d+/)[0]);
+                        likeButton.textContent = `👍 ${currentLikes + 1}`;
+                        likeButton.style.color = 'var(--accent-color)';
+                    }
+                    
+                    // 发表评论功能
+                    if (e.target.classList.contains('comment-submit')) {
+                        e.preventDefault();
+                        const submitButton = e.target;
+                        const textarea = submitButton.previousElementSibling;
+                        const commentText = textarea.value.trim();
+                        
+                        if (commentText) {
+                            // 创建新评论
+                            const commentsContainer = submitButton.closest('.app-comments');
+                            const commentItem = document.createElement('div');
+                            commentItem.className = 'comment-item';
+                            commentItem.innerHTML = `
+                                <img src="https://via.placeholder.com/48x48/0071e3/ffffff?text=You" alt="You" class="comment-avatar">
+                                <div class="comment-content">
+                                    <div class="comment-header">
+                                        <span class="comment-user">你</span>
+                                        <div class="comment-rating">★★★★★</div>
+                                    </div>
+                                    <p class="comment-text">${commentText}</p>
+                                    <div class="comment-footer">
+                                        <span class="comment-date">${new Date().toISOString().split('T')[0]}</span>
+                                        <div class="comment-actions">
+                                            <button class="comment-like">👍 0</button>
+                                            <button class="comment-reply">💬 0</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            // 插入到评论列表顶部
+                            const commentInputSection = submitButton.closest('.comment-input-section');
+                            commentsContainer.insertBefore(commentItem, commentInputSection);
+                            
+                            // 清空输入框
+                            textarea.value = '';
+                            
+                            // 显示成功提示
+                            alert('评论发表成功！');
+                        }
+                    }
+                });
+            }
+            
+            // 初始化评论系统
+            initComments();
+        });
+    </script>
+</body>
+</html>
+                                                  
