@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用宇宙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #f5f5f7;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        .nav-tab.active {
+            opacity: 1;
+            color: #007aff;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 40px 0 20px;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 40px;
+        }
+
+        .app-card {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .app-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .app-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 22px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+        }
+
+        .app-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .logo-char {
+            background: linear-gradient(90deg, #973BED, #007CFF, #FFC800, #F0F, #00E0ED, #00DA72, #973BED);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoGradient 3s ease infinite, logoBounce 0.6s ease-in-out infinite;
+            display: inline-block;
+            text-shadow: 0 0 10px rgba(151, 59, 237, 0.5),
+                         0 0 20px rgba(151, 59, 237, 0.3),
+                         0 0 30px rgba(151, 59, 237, 0.2);
+        }
+
+        .logo-char:nth-child(1) { animation-delay: 0s, 0s; }
+        .logo-char:nth-child(2) { animation-delay: 0s, 0.1s; }
+        .logo-char:nth-child(3) { animation-delay: 0s, 0.2s; }
+        .logo-char:nth-child(4) { animation-delay: 0s, 0.3s; }
+
+        @keyframes logoGradient {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes logoBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .loader-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 280px;
+            height: 280px;
+            font-family: "Inter", sans-serif;
+            font-size: 2.2em;
+            font-weight: 600;
+            color: white;
+            border-radius: 50%;
+            background-color: transparent;
+            user-select: none;
+        }
+
+        .time-display {
+            z-index: 1;
+            text-align: center;
+        }
+
+        .time-char {
+            display: inline-block;
+            opacity: 0.4;
+            transform: translateY(0);
+            animation: time-char-anim 2s infinite;
+        }
+
+        .time-char:nth-child(1) { animation-delay: 0s; }
+        .time-char:nth-child(2) { animation-delay: 0.1s; }
+        .time-char:nth-child(3) { animation-delay: 0.2s; }
+        .time-char:nth-child(4) { animation-delay: 0.3s; }
+        .time-char:nth-child(5) { animation-delay: 0.4s; }
+        .time-char:nth-child(6) { animation-delay: 0.5s; }
+        .time-char:nth-child(7) { animation-delay: 0.6s; }
+        .time-char:nth-child(8) { animation-delay: 0.7s; }
+
+        @keyframes time-char-anim {
+            0%, 100% {
+                opacity: 0.4;
+                transform: translateY(0);
+            }
+            20% {
+                opacity: 1;
+                transform: scale(1.2);
+                text-shadow: 0 0 20px #fff, 0 0 40px #ad5fff;
+            }
+            40% {
+                opacity: 0.7;
+                transform: translateY(0);
+            }
+        }
+
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 50%;
+            background-color: transparent;
+            animation: loader-rotate 2s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes loader-rotate {
+            0% {
+                transform: rotate(90deg);
+                box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset;
+            }
+            50% {
+                transform: rotate(270deg);
+                box-shadow: 0 10px 20px 0 #fff inset, 0 20px 10px 0 #d60a47 inset, 0 40px 60px 0 #311e80 inset;
+            }
+            100% {
+                transform: rotate(450deg);
+                box-shadow: 0 10px 20px 0 #fff inset, 0 20px 30px 0 #ad5fff inset, 0 60px 60px 0 #471eec inset;
+            }
+        }
+
+        .update-notice-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .update-notice-section.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .update-notice-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+        }
+
+        .update-list {
+            list-style: none;
+        }
+
+        .update-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .update-item:last-child {
+            border-bottom: none;
+        }
+
+        .update-time {
+            font-size: 12px;
+            color: #86868b;
+            margin-bottom: 4px;
+        }
+
+        .update-content {
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+
+        .footer {
+            background: #f5f5f7;
+            padding: 40px 20px;
+            margin-top: 60px;
+            text-align: center;
+            color: #86868b;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <span class="logo-char">应</span>
+                <span class="logo-char">用</span>
+                <span class="logo-char">宇</span>
+                <span class="logo-char">宙</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" id="tab-today" class="nav-tab active">今日</a></li>
+                <li><a href="#" id="tab-apps" class="nav-tab">应用</a></li>
+                <li><a href="#" id="tab-update" class="nav-tab">更新公告</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <section class="hero tab-content" id="content-today">
+            <div class="loader-wrapper">
+                <div class="time-display" id="beijing-time">00:00:00</div>
+                <div class="loader"></div>
+            </div>
+        </section>
+
+        <section class="tab-content" id="content-apps" style="display: none;">
+            <div class="apps-grid">
+                <a href="https://store.steampowered.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #1b2838 0%, #2a475e 100%);">🎮</div>
+                    <div class="app-info">
+                        <h3>Steam</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.youtube.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);">📺</div>
+                    <div class="app-info">
+                        <h3>YouTube</h3>
+                    </div>
+                </a>
+
+                <a href="https://twitter.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);">🐦</div>
+                    <div class="app-info">
+                        <h3>X</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.douyin.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #000000 0%, #25f4ee 100%);">🎵</div>
+                    <div class="app-info">
+                        <h3>抖音</h3>
+                    </div>
+                </a>
+
+                <a href="https://im.qq.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #12b7f5 0%, #0ea5e9 100%);">💬</div>
+                    <div class="app-info">
+                        <h3>QQ</h3>
+                    </div>
+                </a>
+
+                <a href="https://y.qq.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #31c27c 0%, #1fb572 100%);">🎶</div>
+                    <div class="app-info">
+                        <h3>QQ音乐</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.taobao.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff5000 0%, #ff9000 100%);">🛒</div>
+                    <div class="app-info">
+                        <h3>淘宝</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.jd.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #e2231a 0%, #c8161d 100%);">📦</div>
+                    <div class="app-info">
+                        <h3>京东</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.2.taobao.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff6600 0%, #ff9933 100%);">🔄</div>
+                    <div class="app-info">
+                        <h3>闲鱼</h3>
+                    </div>
+                </a>
+
+                <a href="https://gemini.google.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 75%, #ea4335 100%);">✨</div>
+                    <div class="app-info">
+                        <h3>Gemini</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.google.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #4285f4 0%, #34a853 50%, #fbbc05 75%, #ea4335 100%);">🔍</div>
+                    <div class="app-info">
+                        <h3>Google</h3>
+                    </div>
+                </a>
+
+                <a href="https://chat.openai.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #10a37f 0%, #0d8f6f 100%);">🤖</div>
+                    <div class="app-info">
+                        <h3>ChatGPT</h3>
+                    </div>
+                </a>
+
+                <a href="https://github.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #24292e 0%, #1b1f23 100%);">💻</div>
+                    <div class="app-info">
+                        <h3>GitHub</h3>
+                    </div>
+                </a>
+
+                <a href="https://mail.google.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ea4335 0%, #fbbc05 50%, #34a853 75%, #4285f4 100%);">📧</div>
+                    <div class="app-info">
+                        <h3>Gmail</h3>
+                    </div>
+                </a>
+
+                <a href="https://outlook.live.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #0078d4 0%, #0063b1 100%);">📬</div>
+                    <div class="app-info">
+                        <h3>Outlook</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.instagram.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">📸</div>
+                    <div class="app-info">
+                        <h3>Instagram</h3>
+                    </div>
+                </a>
+
+                <a href="https://claude.ai" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #d97757 0%, #c9644d 100%);">🧠</div>
+                    <div class="app-info">
+                        <h3>Claude</h3>
+                    </div>
+                </a>
+
+                <a href="https://telegram.org" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #0088cc 0%, #006699 100%);">✈️</div>
+                    <div class="app-info">
+                        <h3>Telegram</h3>
+                    </div>
+                </a>
+
+                <a href="https://truthsocial.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);">📢</div>
+                    <div class="app-info">
+                        <h3>Truth Social</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.kuaishou.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff5000 0%, #ff9000 100%);">🎬</div>
+                    <div class="app-info">
+                        <h3>快手</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.huya.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff6b00 0%, #ff9500 100%);">🎮</div>
+                    <div class="app-info">
+                        <h3>虎牙直播</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.bilibili.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #00a1d6 0%, #0093b3 100%);">📺</div>
+                    <div class="app-info">
+                        <h3>哔哩哔哩</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.youku.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #00a6ff 0%, #0077ff 100%);">🎥</div>
+                    <div class="app-info">
+                        <h3>优酷视频</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.iqiyi.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #00be06 0%, #00a805 100%);">🍿</div>
+                    <div class="app-info">
+                        <h3>爱奇艺</h3>
+                    </div>
+                </a>
+
+                <a href="https://weibo.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff8200 0%, #ff6d00 100%);">📱</div>
+                    <div class="app-info">
+                        <h3>微博</h3>
+                    </div>
+                </a>
+
+                <a href="https://music.163.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #c20c0c 0%, #a80a0a 100%);">🎵</div>
+                    <div class="app-info">
+                        <h3>网易云音乐</h3>
+                    </div>
+                </a>
+
+                <a href="https://mail.qq.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #12b7f5 0%, #0ea5e9 100%);">📧</div>
+                    <div class="app-info">
+                        <h3>QQ邮箱</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.zhihu.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #0084ff 0%, #0066cc 100%);">❓</div>
+                    <div class="app-info">
+                        <h3>知乎</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.baidu.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #2932e1 0%, #de2910 50%, #ffba00 100%);">🔍</div>
+                    <div class="app-info">
+                        <h3>百度</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.pinduoduo.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #e02e24 0%, #c92920 100%);">🛍️</div>
+                    <div class="app-info">
+                        <h3>拼多多</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.meituan.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff6600 0%, #e65c00 100%);">🍔</div>
+                    <div class="app-info">
+                        <h3>美团</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.ele.me" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #00a1ff 0%, #0088e6 100%);">🍜</div>
+                    <div class="app-info">
+                        <h3>饿了么</h3>
+                    </div>
+                </a>
+
+                <a href="https://www.xiaohongshu.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #fe2c55 0%, #e6274c 100%);">📔</div>
+                    <div class="app-info">
+                        <h3>小红书</h3>
+                    </div>
+                </a>
+
+                <a href="https://pan.baidu.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #2932e1 0%, #1a23cc 100%);">☁️</div>
+                    <div class="app-info">
+                        <h3>百度网盘</h3>
+                    </div>
+                </a>
+
+                <a href="https://v.qq.com" target="_blank" class="app-card">
+                    <div class="app-icon" style="background: linear-gradient(135deg, #ff6700 0%, #e65c00 100%);">🎬</div>
+                    <div class="app-info">
+                        <h3>腾讯视频</h3>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="update-notice-section tab-content" id="content-update" style="display: none;">
+            <h2 class="update-notice-title">📋 更新公告</h2>
+            <ul class="update-list" id="update-list">
+            </ul>
+        </section>
+    </div>
+
+    <footer class="footer">
+        <p>© 2026 应用宇宙</p>
+    </footer>
+
+    <script>
+        const updateHistory = [];
+
+        function addUpdate(content) {
+            const now = new Date();
+            const beijingTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
+            const timeStr = beijingTime.toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
+            
+            updateHistory.unshift({
+                time: timeStr,
+                content: content
+            });
+            
+            renderUpdates();
+        }
+
+        function renderUpdates() {
+            const list = document.getElementById('update-list');
+            list.innerHTML = updateHistory.map(item => `
+                <li class="update-item">
+                    <div class="update-time">${item.time}</div>
+                    <div class="update-content">${item.content}</div>
+                </li>
+            `).join('');
+        }
+
+        function updateBeijingTime() {
+            const now = new Date();
+            const beijingTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
+            
+            const hours = String(beijingTime.getHours()).padStart(2, '0');
+            const minutes = String(beijingTime.getMinutes()).padStart(2, '0');
+            const seconds = String(beijingTime.getSeconds()).padStart(2, '0');
+            
+            const timeStr = `${hours}:${minutes}:${seconds}`;
+            let html = '';
+            for (let i = 0; i < timeStr.length; i++) {
+                html += `<span class="time-char">${timeStr[i]}</span>`;
+            }
+            
+            document.getElementById('beijing-time').innerHTML = html;
+        }
+        
+        updateBeijingTime();
+        setInterval(updateBeijingTime, 1000);
+
+        const tabs = document.querySelectorAll('.nav-tab');
+        const contents = document.querySelectorAll('.tab-content');
+
+        function switchTab(tabId) {
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => {
+                content.style.display = 'none';
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            const contentId = tabId.replace('tab-', 'content-');
+            const contentElement = document.getElementById(contentId);
+            if (contentElement.classList.contains('hero')) {
+                contentElement.style.display = 'flex';
+            } else {
+                contentElement.style.display = 'block';
+            }
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                switchTab(this.id);
+            });
+        });
+
+        addUpdate('创建 App Store 模仿页面');
+        addUpdate('将 Hero 区域替换为加载器动画');
+        addUpdate('加载器文字改为实时北京时间');
+        addUpdate('网站名称改为「应用宇宙」');
+        addUpdate('删除应用卡片');
+        addUpdate('为时间添加逐字动画特效');
+        addUpdate('扩大光环尺寸');
+        addUpdate('缩小 Hero 区域');
+        addUpdate('修改导航栏：游戏→应用，删除 App、Arcade，更新→更新公告');
+        addUpdate('添加更新公告区域，实时记录所有修改');
+        addUpdate('实现标签页切换功能，点击导航只显示对应内容');
+        addUpdate('在「应用」标签页添加网站链接：Steam、YouTube、X、抖音、QQ、QQ音乐');
+        addUpdate('简化应用卡片，只保留图标和名字，点击整个卡片可跳转');
+        addUpdate('删除「热门应用」标题，只保留图标和名字');
+        addUpdate('删除应用卡片的白色方框背景');
+        addUpdate('调整应用卡片布局，列宽改为180px，间距改为40px');
+        addUpdate('添加更多网站链接：淘宝、京东、闲鱼、Gemini、Google、ChatGPT、GitHub、Gmail、Outlook、Instagram、Claude、Telegram、Truth Social');
+        addUpdate('修复标签页切换后时钟不居中的bug');
+        addUpdate('暂时移除「意见反馈」功能');
+        addUpdate('添加更多网站：快手、虎牙直播、哔哩哔哩、优酷视频、爱奇艺、微博、网易云音乐、QQ邮箱、知乎、百度、拼多多、美团、饿了么、小红书、百度网盘、腾讯视频');
+        addUpdate('导航栏「应用宇宙」添加炫酷的 SVG 动画特效');
+    </script>
+</body>
+</html>
