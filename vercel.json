@@ -1,16 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/index.js", "use": "@vercel/node" },
-    { "src": "manifest.json", "use": "@vercel/static" },
-    { "src": "sw.js", "use": "@vercel/static" },
-    { "src": "icon-192.png", "use": "@vercel/static" },
-    { "src": "icon-512.png", "use": "@vercel/static" },
-    { "src": "icon-512-maskable.png", "use": "@vercel/static" },
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": ".well-known/assetlinks.json", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "api/index.js" }
-  ]
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist"
 }
